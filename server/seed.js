@@ -6,8 +6,8 @@ const User = require("./models/User");
 
 // Credentials come from the environment so no password lives in the repo.
 // Set SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD in server/.env (or the shell) before running.
-const ADMIN_NAME = process.env.SEED_ADMIN_NAME || "Admin";
-const ADMIN_EMAIL = (process.env.SEED_ADMIN_EMAIL || "admin@syncnode.io").trim().toLowerCase();
+const ADMIN_NAME = process.env.SEED_ADMIN_NAME || "Sridhar";
+const ADMIN_EMAIL = (process.env.SEED_ADMIN_EMAIL || "sridharraman2018@gmail.com").trim().toLowerCase();
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD;
 const FORCE = process.argv.includes("--force");
 
