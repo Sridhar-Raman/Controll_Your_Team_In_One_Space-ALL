@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c0912"/>
+      <stop offset="0.55" stop-color="#1d1026"/>
+      <stop offset="1" stop-color="#2a1530"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0.18" cy="0.2" r="0.55">
+      <stop offset="0" stop-color="#e2c3dc" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#e2c3dc" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0.85" cy="0.75" r="0.5">
+      <stop offset="0" stop-color="#b86bb0" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#b86bb0" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="windows" width="28" height="36" patternUnits="userSpaceOnUse">
+      <rect x="6" y="8" width="12" height="16" rx="2" fill="#e2c3dc" fill-opacity="0.3"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0c0912" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0c0912" stop-opacity="0.85"/>
+    </linearGradient>
+    <clipPath id="skyline">
+    <rect x="0" y="640" width="150" height="440"/>
+    <rect x="150" y="560" width="130" height="520"/>
+    <rect x="280" y="700" width="110" height="380"/>
+    <rect x="390" y="520" width="170" height="560"/>
+    <rect x="560" y="660" width="120" height="420"/>
+    <rect x="680" y="590" width="150" height="490"/>
+    <rect x="830" y="720" width="100" height="360"/>
+    <rect x="930" y="500" width="190" height="580"/>
+    <rect x="1120" y="630" width="130" height="450"/>
+    <rect x="1250" y="560" width="160" height="520"/>
+    <rect x="1410" y="690" width="110" height="390"/>
+    <rect x="1520" y="540" width="170" height="540"/>
+    <rect x="1690" y="640" width="230" height="440"/>
+    </clipPath>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#glowA)"/>
+  <rect width="1920" height="1080" fill="url(#glowB)"/>
+  <g clip-path="url(#skyline)">
+    <rect width="1920" height="1080" fill="#e2c3dc" fill-opacity="0.13"/>
+    <rect width="1920" height="1080" fill="url(#windows)"/>
+  </g>
+  <rect y="480" width="1920" height="600" fill="url(#fade)"/>
+</svg>

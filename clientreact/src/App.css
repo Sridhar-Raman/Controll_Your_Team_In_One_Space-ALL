@@ -1,0 +1,2520 @@
+:root {
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  --accent: #5c2252;
+  --accent-soft: rgba(92, 34, 82, 0.15);
+
+  --success: #2ed573;
+  --warning: #ffa502;
+  --danger: #ff4757;
+
+  --text-dim: rgba(255, 255, 255, 0.6);
+}
+
+/* ---------------- GLOBAL ---------------- */
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: white;
+  background: radial-gradient(circle at top left, #3b1a3a, #12081a);
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 600;
+}
+
+small {
+  color: var(--text-dim);
+}
+
+/* scrollbar */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ---------------- GLASS SYSTEM ---------------- */
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+}
+
+
+/* ---------------- LAYOUT ---------------- */
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  gap: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* .sidebar {
+  width: 260px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+} */
+
+.sidebar {
+  width: 260px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  /* Prevent the sidebar itself from growing beyond the screen */
+  height: 100%; 
+  box-sizing: border-box;
+  overflow: hidden; /* Keep the glass container strictly contained */
+}
+
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto;
+}
+
+/* ---------------- SIDEBAR ---------------- */
+
+/* ---------- Collapsible sidebar ----------
+   Rests as a 76px icon rail. While the pointer is over it (or a keyboard user
+   is focused inside it) it grows to the full menu and floats over the page.
+   The negative margin keeps the page layout at the rail width so the content
+   does not shift when the menu opens. */
+.sidebar {
+  --rail: 76px; /* collapsed width; narrower on small screens (see responsive block) */
+  position: relative;
+  z-index: 50;
+  flex: 0 0 auto; /* width (not flex-basis) drives the size so hover can change it */
+  width: var(--rail);
+  padding: 25px 13px;
+  /* Solid, not the translucent .glass fill, so nothing shows through it
+     while it floats over the page. */
+  background: #1c0e21;
+  backdrop-filter: none;
+  transition:
+    width 0.25s ease,
+    margin-right 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.sidebar:is(:hover, :has(:focus-visible)) {
+  width: 260px;
+  margin-right: calc(var(--rail) - 260px); /* float over the content instead of pushing it */
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+/* The menu always fits the sidebar height with no scrollbar: items share the
+   free space (up to a cap) and shrink together when the screen is short. */
+.sidebar .admin-nav {
+  display: contents; /* let the admin links share the nav's flex layout */
+}
+
+.sidebar .nav-menu {
+  overflow: hidden;
+  gap: 8px;
+  justify-content: space-evenly;
+  scrollbar-gutter: auto;
+}
+
+.sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 60px;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Icons keep their own colour so only the label can be hidden */
+.sidebar .nav-link svg {
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.sidebar .nav-link.active svg {
+  color: #000;
+}
+
+/* Collapsed: icons only */
+.sidebar:not(:is(:hover, :has(:focus-visible))) .nav-link {
+  color: transparent;
+}
+
+.sidebar:not(:is(:hover, :has(:focus-visible))) .brand-logo {
+  justify-content: center;
+}
+
+.sidebar:not(:is(:hover, :has(:focus-visible))) .brand-text,
+.sidebar:not(:is(:hover, :has(:focus-visible))) .user-text {
+  display: none;
+}
+
+.sidebar:not(:is(:hover, :has(:focus-visible))) .user-info {
+  justify-content: center;
+  padding: 4px;
+  background: transparent;
+  border-color: transparent;
+}
+
+.sidebar h2 {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 25px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+}
+
+/* Pinned to the bottom of the sidebar; the nav above scrolls instead. */
+.sidebar > .user-info {
+  flex-shrink: 0;
+  margin: 12px 0 0;
+}
+
+.user-info .user-text {
+  min-width: 0;
+}
+
+.user-info .user-text > span:first-child,
+.user-info .user-label-row > span {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-info .badge {
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.user-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.user-label-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(46, 213, 115, 0.12);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 15px 0;
+}
+/* 
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+} */
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Takes up all remaining space below the header */
+  overflow-y: auto; /* Adds vertical scroll only if content overflows */
+  margin-top: 10px;
+  
+  /* Optional: Hide scrollbar track for a cleaner look */
+  scrollbar-gutter: stable; 
+}
+
+/* Customizing the scrollbar specifically for the nav-menu (Optional) */
+.nav-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.nav-menu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.nav-menu::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+.nav-link {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  color: white;
+
+  padding: 12px 14px;
+  border-radius: 10px;
+
+  cursor: pointer;
+  text-align: left;
+
+  margin-bottom: 8px;
+  width: 100%;
+
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.nav-link.active {
+  background: var(--accent);
+  color: black;
+  border-color: var(--accent);
+}
+
+.logout {
+  margin-top: auto;
+}
+
+
+
+/* ---------------- TOP BAR LAYOUT ---------------- */
+
+.top-bar {
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Keeps left, center, and right spaced */
+  padding: 0 25px;
+}
+
+.top-barr{
+  
+ height: 70px; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  /* Ensure it doesn't overlap content */
+  box-sizing: border-box; 
+  flex-shrink: 0; /* Prevents flex containers from squeezing it */
+
+}
+
+
+.header-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+}
+/* ---------------- DASHBOARD GRID ---------------- */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 20px;
+}
+
+/* ---------------- CARDS ---------------- */
+
+.card {
+  padding: 22px;
+  transition: all 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------------- TALENT ITEMS ---------------- */
+
+.talent-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+
+  padding: 14px;
+  border-radius: 12px;
+
+  margin-top: 10px;
+
+  transition: 0.2s;
+}
+
+.talent-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ---------------- BUTTONS ---------------- */
+
+.action-btn {
+  background: var(--accent);
+  border: none;
+
+  padding: 10px 18px;
+  border-radius: 10px;
+
+  font-weight: 600;
+  color: black;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(92, 34, 82, 0.35);
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.action-btn.small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* Icon button that reveals its label on hover/keyboard focus */
+.icon-label-btn .icon-label {
+  max-width: 0;
+  margin-left: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transition:
+    max-width 0.25s ease,
+    margin-left 0.25s ease,
+    opacity 0.2s ease;
+}
+
+.icon-label-btn:hover .icon-label,
+.icon-label-btn:focus-visible .icon-label {
+  max-width: 120px;
+  margin-left: 8px;
+  opacity: 1;
+}
+
+/* ---------------- INPUTS ---------------- */
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+
+  padding: 10px;
+  border-radius: 8px;
+
+  color: white;
+  outline: none;
+}
+
+.glass-input:focus {
+  border-color: var(--accent);
+}
+
+.glass-input option{
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ---------------- INPUTS ---------------- */
+
+.glasss-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  width: 93%;
+  padding: 10px;
+  border-radius: 8px;
+  
+  color: white;
+  outline: none;
+}
+
+.glasss-input:focus {
+  border-color: var(--accent);
+}
+
+.glasss-input option{
+  background-color: rgba(255, 255, 255, 0.05);
+}
+/* ---------------- TABLE ---------------- */
+
+.sync-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.sync-table th {
+  text-align: left;
+  padding: 12px;
+
+  font-size: 13px;
+  letter-spacing: 0.5px;
+
+  color: var(--text-dim);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sync-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sync-table tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ---------------- STATUS BADGES ---------------- */
+
+.status-pill {
+  padding: 4px 10px;
+  border-radius: 20px;
+
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.status-pill.completed {
+  background: rgba(46, 213, 115, 0.2);
+  color: var(--success);
+}
+
+.status-pill.pending {
+  background: rgba(255, 165, 2, 0.2);
+  color: var(--warning);
+}
+
+.status-pill.processing {
+  background: rgba(92, 34, 82, 0.2);
+  color: var(--accent);
+}
+
+.status-pill.approved {
+  background: rgba(46, 213, 115, 0.2);
+  color: var(--success);
+}
+
+.status-pill.rejected {
+  background: rgba(255, 71, 87, 0.2);
+  color: var(--danger);
+}
+
+/* ---------------- TIME BADGE ---------------- */
+
+.time-badge {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ---------------- LEAVE FORM ---------------- */
+
+.leave-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: var(--text-dim);
+}
+
+.full-width {
+  grid-column: span 3;
+}
+
+/* ---------------- CATEGORY BADGE ---------------- */
+
+.cat-badge {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+/* ---------------- BADGES ---------------- */
+
+.burn-badge {
+  background: var(--accent-soft);
+  padding: 8px 16px;
+  border-radius: 30px;
+  border: 1px solid var(--accent);
+}
+
+/* ---------------- TOAST ---------------- */
+
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+
+  border-radius: 10px;
+  padding: 14px 22px;
+
+  border-left: 4px solid var(--accent);
+
+  animation: slideIn 0.3s ease-out;
+}
+
+.toast.success {
+  border-left-color: var(--success);
+}
+
+.toast.error {
+  border-left-color: var(--danger);
+}
+
+/* Centered toast: used for the login confirmation */
+#toast-center {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast.toast-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  background: rgba(20, 12, 28, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left-width: 4px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: popIn 0.25s ease-out;
+}
+
+.toast.toast-center.success {
+  border-left-color: var(--success);
+}
+
+.toast.toast-center.success > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--success);
+  color: #000;
+  font-size: 0.95rem;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ---------------- USER ACCOUNTS: aligned controls ----------------
+   The shared .glass-input / .custom-select / .action-btn rules are defined
+   several times with different sizes, so this screen sets one control size
+   (40px tall, same font and radius) that wins by using a doubled selector. */
+.uf-field.uf-field,
+.uf-btn.uf-btn {
+  height: 40px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.uf-field.uf-field {
+  width: 100%;
+  min-width: 0;
+  padding: 0 12px;
+}
+
+select.uf-field.uf-field {
+  padding-right: 30px;
+}
+
+.uf-btn.uf-btn {
+  padding: 0 18px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uf-btn-ghost.uf-btn-ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+}
+
+/* Toolbar: search grows, role filter and button keep a fixed width */
+.uf-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.uf-toolbar .uf-search {
+  flex: 1 1 220px;
+  width: auto; /* .uf-field sets 100%, which would force a row of its own */
+  min-width: 200px;
+}
+
+.uf-toolbar .uf-search {
+  flex: 1 1 auto;
+}
+
+.uf-toolbar .uf-role {
+  flex: 0 0 160px;
+  width: 160px;
+}
+
+@media (max-width: 640px) {
+  .uf-toolbar {
+    flex-wrap: wrap;
+  }
+  .uf-toolbar .uf-search {
+    flex-basis: 100%;
+  }
+  .uf-toolbar .uf-role {
+    flex: 1 1 0;
+  }
+}
+
+/* Create-user form: stacked labelled fields on a two-column grid */
+.uf-form {
+  padding: 24px;
+  width: min(460px, 92vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.uf-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.uf-label > span {
+  font-size: 0.72rem;
+  opacity: 0.7;
+  letter-spacing: 0.03em;
+}
+
+.uf-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.uf-row > :only-child {
+  grid-column: 1 / -1;
+}
+
+.uf-pw {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.uf-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* ---------------- LOGIN ---------------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 1000;
+}
+
+/* Login screen: full-bleed background image (swap public/login-bg.svg for any
+   photo) with the card floating above it. The shared .overlay is also used by
+   the logout dialog, so this only applies to .login-screen. */
+.overlay.login-screen {
+  background:
+    linear-gradient(rgba(12, 9, 18, 0.05), rgba(12, 9, 18, 0.3)),
+    url("/login-bg.svg") center / cover no-repeat,
+    #0c0912;
+  backdrop-filter: none;
+}
+
+.login-screen .login-card {
+  background: rgba(20, 12, 28, 0.72);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(92, 34, 82, 0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.login-card {
+  padding: 40px;
+  width: 350px;
+
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05); /* Glass base */
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: white;
+  appearance: none; /* Crucial: removes default OS arrow */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+/* Add the custom arrow */
+.select-wrapper::after {
+  content: '▼';
+  font-size: 8px;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text-dim);
+}
+
+/* Focus state */
+.custom-select:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-soft);
+}
+
+/* This is the key: Styling the options list */
+.custom-select option {
+  background: #2a1530; /* Matches your body background */
+  color: white;
+  padding: 10px;
+}
+
+/* Ensure page content stretches correctly */
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+/* Refined search input for Manager Dashboard */
+.top-bar .glass-input {
+  background: rgba(255, 255, 255, 0.03);
+  min-width: 280px;
+  transition: all 0.3s ease;
+}
+
+.top-bar .glass-input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 15px var(--accent-soft);
+}
+
+/* Alignment for Analytics Cards */
+.dashboard-grid .card h1 {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+/* ---------------- ATTENDANCE TOOLTIP ---------------- */
+
+.attendance-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px); /* Position above the cell */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  padding: 12px;
+  z-index: 100;
+  
+  /* Glassmorphism */
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  
+  color: white;
+  font-size: 0.85rem;
+  pointer-events: none; /* User can't accidentally click it */
+  
+  /* Fade In Animation */
+  animation: tooltipFadeIn 0.3s ease forwards;
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.tooltip-row span:first-child {
+  opacity: 0.7;
+  font-size: 0.75rem;
+}
+
+/* Tooltip Arrow */
+.tooltip-arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: rgba(20, 20, 20, 0.85) transparent transparent transparent;
+}
+
+/* Ensure calendar cells don't clip the tooltip */
+.calendar-grid {
+  overflow: visible !important;
+}
+
+.calendar-cell:hover {
+  transform: scale(1.05);
+  z-index: 10;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+
+/* ---------------- UPDATED HEADER ELEMENTS ---------------- */
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+
+
+/* ---------------- TIMER DISPLAY ---------------- */
+
+.timer-display {
+  font-size: 0.9rem;
+  color: #ffffff; /* Fixed: Pure white for better visibility */
+  font-weight: 500;
+}
+
+.timer-display strong {
+  color: var(--accent);
+  margin-left: 5px;
+  font-family: monospace;
+  font-size: 1.05rem;
+}
+
+
+
+/* ---------------- MINI STATUS BUTTONS (CENTERED) ---------------- */
+
+.status-toggle-group {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  /* Center placement */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.status-mini-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 7px;
+  
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.status-mini-btn:hover {
+  color: white;
+}
+
+.status-mini-btn.active-green {
+  background: var(--success);
+  color: #020617;
+  box-shadow: 0 0 10px rgba(46, 213, 115, 0.2);
+}
+
+.status-mini-btn.active-orange {
+  background: var(--warning);
+  color: #020617;
+  box-shadow: 0 0 10px rgba(255, 165, 2, 0.2);
+}
+/* Team Grid Layout */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 10px;
+}
+
+.member-box {
+  text-align: center;
+  padding: 25px;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.member-box:hover {
+  transform: translateY(-5px);
+  border-color: #2ed573;
+}
+
+.member-avatar {
+  background: rgba(255,255,255,0.1);
+  padding: 15px;
+  border-radius: 50%;
+  margin-bottom: 5px;
+}
+
+/* Detail Menu (3 Large Boxes) */
+.detail-menu {
+  grid-template-columns: repeat(3, 1fr) !important;
+  margin-top: 30px;
+  gap: 25px;
+}
+
+.detail-option {
+  padding: 40px !important;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s;
+}
+
+.detail-option:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.view-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn:hover { background: rgba(255,255,255,0.1); }
+.sub-title { color: #2ed573; text-transform: capitalize; }
+
+
+/* --- Intelligence Grid Layout --- */
+.intelligence-grid {
+  display: grid;
+  gap: 20px;
+  margin-top: 10px;
+  align-items: start;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.col.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  min-height: 400px;
+}
+
+/* --- Section Headers --- */
+.section-header {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* --- Interactive Cards --- */
+.talent-item.glass, .eod-card.glass {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.talent-item.glass:hover, .eod-card.glass:hover {
+  background: rgba(55, 66, 250, 0.08);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* --- AI / Control Insight Box --- */
+.ai-insight-box {
+  background: linear-gradient(145deg, rgba(55, 66, 250, 0.05), rgba(0, 0, 0, 0));
+  border-left: 3px solid var(--accent);
+  padding: 20px;
+  border-radius: 0 12px 12px 0;
+}
+
+.ai-head {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Stats & Indicators --- */
+.stat-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.health-stat {
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.burn-graph.glass {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 71, 87, 0.1);
+}
+
+.mini-label {
+  font-size: 0.65rem;
+  opacity: 0.5;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+/* --- Utility Classes --- */
+.action-btn-mini {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.action-btn-mini:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.feed-scroll {
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.feed-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.feed-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.talent-item.glass.active-border {
+  border-color: var(--accent) !important;
+  background: rgba(55, 66, 250, 0.12) !important;
+  box-shadow: inset 0 0 10px rgba(55, 66, 250, 0.2);
+}
+
+.active-border {
+  border: 1px solid var(--accent) !important;
+  background: rgba(92, 34, 82, 0.08) !important;
+  box-shadow: 0 0 20px rgba(92, 34, 82, 0.15);
+}
+
+.mini-label {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.status-mini-btn.active-blue {
+  background: #3742fa;
+  color: white;
+  box-shadow: 0 0 10px rgba(55, 66, 250, 0.4);
+}
+
+.action-btn:hover {
+  filter: brightness(1.2);
+  transform: translateY(-1px);
+}
+
+.chat-drawer {
+  position: fixed;
+  right: -400px;
+  top: 20px;
+  bottom: 20px;
+  width: 350px;
+  z-index: 2000;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-drawer.open {
+  right: 20px;
+}
+
+.chat-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.chat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.chat-item:hover { background: var(--accent-soft); }
+
+.group-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.group-icon.global { background: rgba(92, 34, 82, 0.2); color: var(--accent); }
+.group-icon.dept { background: rgba(46, 213, 115, 0.2); color: var(--success); }
+
+.msg-bubble {
+  max-width: 80%;
+  padding: 10px 15px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.msg-bubble.mine {
+  align-self: flex-end;
+  background: var(--accent);
+  color: black;
+  border-bottom-right-radius: 2px;
+}
+
+.msg-bubble.theirs {
+  align-self: flex-start;
+  background: rgba(255,255,255,0.1);
+  border-bottom-left-radius: 2px;
+}
+
+.sender-tag { font-size: 10px; opacity: 0.6; display: block; margin-bottom: 4px; }
+
+.chat-toggle-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.input-area {
+  padding: 15px;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.message-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container for the tabs - Glassmorphic bar */
+.chat-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  margin-bottom: 15px;
+  backdrop-filter: blur(10px);
+}
+
+.chat-tabs button {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Hover state for inactive tabs */
+.chat-tabs button:hover:not(.active) {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Active state - The "Glow" aesthetic */
+.chat-tabs button.active {
+  background: rgba(46, 213, 115, 0.1); /* Match your green theme */
+  color: #2ed573;
+  border: 1px solid rgba(46, 213, 115, 0.2);
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.2),
+    inset 0 0 10px rgba(46, 213, 115, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Optional: Subtle pulse for the active tab */
+.chat-tabs button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  width: 4px;
+  height: 4px;
+  background: #2ed573;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #2ed573;
+}
+/* Container/Link style */
+.back-link {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5); /* Muted by default */
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: fit-content;
+  margin-bottom: 10px;
+}
+
+/* Hover State */
+.back-link:hover {
+  color: #2ed573; /* Transitions to your brand green */
+  background: rgba(46, 213, 115, 0.05); /* Very faint glass tint */
+  transform: translateX(-5px); /* Physical "Back" movement */
+}
+
+/* Specific Glow for the arrow/text on hover */
+.back-link:hover {
+  text-shadow: 0 0 10px rgba(46, 213, 115, 0.4);
+}
+
+/* Active State (Click) */
+.back-link:active {
+  transform: translateX(-2px) scale(0.95);
+  transition: 0.1s;
+}
+
+/* If you use a Lucide Icon instead of "←", this ensures it scales */
+.back-link svg {
+  transition: transform 0.3s ease;
+}
+
+.back-link:hover svg {
+  transform: scale(1.1);
+}
+
+/* Sidebar Chat Mode */
+.chat-drawer.glass {
+  position: relative; /* Default for sidebar mode */
+  width: 100%;
+  height: 100%;
+  right: auto;
+  top: auto;
+  transform: none;
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Hide the toggle button since it's now in the sidebar */
+.chat-toggle-btn {
+  display: none;
+}
+
+/* Adjust the messenger body to fill space */
+.chat-body {
+  height: calc(100% - 70px);
+  display: flex;
+  flex-direction: column;
+}
+
+.active-conversation {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+/* Navigation Icon Alignment */
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* --- CHAT DRAWER REFINEMENTS --- */
+
+.chat-header .header-info {
+  
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.glow-icon {
+  background: var(--accent-soft);
+  padding: 8px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px var(--accent-soft);
+}
+
+.close-btn-circle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: var(--text-dim);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.close-btn-circle:hover {
+  background: var(--danger);
+  color: white;
+  border-color: var(--danger);
+}
+
+/* Tab Container Padding */
+.chat-tab-container {
+  padding: 15px 15px 0 15px;
+}
+
+/* Hex icons for groups */
+.group-icon-hex {
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.group-icon-hex.dept {
+  color: var(--success);
+}
+
+/* Avatar with status dot */
+.user-avatar-chat {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.status-dot.online { color: var(--success); }
+.status-dot.offline { color: var(--text-dim); }
+
+/* Conversation Header */
+.conv-header {
+  padding: 15px;
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.conv-title h4 {
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+
+.status-indicator {
+  font-size: 10px;
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-indicator::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--success);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 5px var(--success);
+}
+
+/* Modern Message Bubbles */
+.msg-bubble-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.msg-bubble-wrapper.mine { align-items: flex-end; }
+.msg-bubble-wrapper.theirs { align-items: flex-start; }
+
+.msg-bubble {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.mine .msg-bubble {
+  background: var(--accent);
+  color: #020617;
+  border-bottom-right-radius: 4px;
+  font-weight: 500;
+}
+
+.theirs .msg-bubble {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--glass-border);
+  color: white;
+  border-bottom-left-radius: 4px;
+}
+
+.empty-chat {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+/* Modern Input Area */
+.input-area-modern {
+  padding: 20px;
+  display: flex;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.glass-input-chat {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  padding: 12px 18px;
+  border-radius: 14px;
+  color: white;
+  outline: none;
+  transition: 0.3s;
+}
+
+.glass-input-chat:focus {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.send-btn-neon {
+  background: var(--accent);
+  color: #020617;
+  border: none;
+  width: 45px;
+  height: 45px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 0 15px var(--accent-soft);
+}
+
+.send-btn-neon:disabled {
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+
+.send-btn-neon:hover:not(:disabled) {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 0 20px var(--accent);
+}
+
+
+/* Container ensures items stay aligned and don't wrap */
+.endorsement-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 140px; /* Adjust based on your layout to prevent shrinking */
+}
+
+/* Fixed width for the star/count area */
+.endorsement-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #5c2252;
+  width: 45px; /* Fixed width so 1 digit vs 2 digits doesn't push the button */
+}
+
+/* The Button - The "Anchor" */
+.endorse-btn {
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  min-width: 85px; /* CRITICAL: Fixed width for the word "Endorsed" */
+  text-align: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  white-space: nowrap; /* Prevents text from breaking into two lines */
+}
+
+/* Style for when it's already endorsed */
+.endorse-btn.is-endorsed {
+  background: rgba(92, 34, 82, 0.1);
+  border-color: rgba(92, 34, 82, 0.3);
+  color: #5c2252;
+  cursor:not-allowed;
+  opacity: 0.8;
+}
+
+/* Small nudge for the count value to keep it centered */
+.count-value {
+  display: inline-block;
+  min-width: 12px;
+}
+
+
+
+/* This styles the box the user clicks on */
+.custom-select {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 30px 8px 12px; /* Extra right padding for custom arrow */
+  font-size: 0.75rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none; /* Removes default browser arrow */
+  
+  /* Adds a custom clean arrow icon */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 10px) center;
+  transition: all 0.3s ease;
+}
+
+.custom-select:hover {
+  border-color: var(--accent);
+}
+
+.custom-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-soft);
+}
+
+/* This styles the dropdown options menu */
+.custom-select option {
+  background-color: var(--bg-dark); 
+  color: #fff;
+  padding: 12px;
+}
+
+/* This forces the menu items to be readable */
+.custom-select option {
+  background-color: #121212 !important; /* Dark background */
+  color: #ffffff !important;           /* White text */
+  padding: 10px;
+}
+
+/* Fix for Safari/Chrome to ensure the text isn't washed out */
+.custom-select {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* --- GLOBAL DROPDOWN STYLING --- */
+.custom-select {
+  /* The main box */
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none; /* Removes default arrow */
+}
+
+/* The popup menu */
+.custom-select option {
+  background: #1a1a1a; /* Dark gray so white text is visible */
+  color: white;
+}
+
+/* Hover & Focus */
+.custom-select:hover {
+  border-color: #5c2252; /* Your accent color */
+}
+
+.custom-select:focus {
+  background: #000000 !important; /* Pitch black when open */
+}
+/* ================= FIT-TO-SCREEN + RESPONSIVE =================
+   Every screen is sized to the viewport: the page itself never scrolls and no
+   scrollbars are drawn. A long list still scrolls (wheel / touch / keyboard)
+   inside its own panel, it just has no visible bar. */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.app-container {
+  height: 100vh;
+  height: 100dvh; /* tracks mobile browser toolbars */
+  min-width: 0;
+}
+
+.main-content {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.main-content > .top-bar,
+.main-content > .top-barr {
+  flex: 0 0 auto;
+}
+
+/* The screen under the top bar takes exactly the remaining height (whatever
+   the top bar's height is) and scrolls inside itself if it has more content. */
+.main-content > .page-content {
+  flex: 1 1 0;
+  min-height: 0;
+  height: auto !important; /* beats the fixed calc(100vh - ...) heights some screens set inline */
+  max-height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Top bar keeps working at narrow widths */
+.top-bar {
+  gap: 12px;
+}
+
+.top-bar h1 {
+  font-size: clamp(1.15rem, 2.2vw, 2rem);
+  white-space: nowrap;
+}
+
+.header-right {
+  min-width: 0;
+}
+
+.timer-display {
+  white-space: nowrap;
+}
+
+.top-bar .glass-input {
+  min-width: 0;
+}
+
+/* Tablet and below */
+@media (max-width: 1024px) {
+  .app-container {
+    gap: 14px;
+    padding: 14px;
+  }
+  .top-bar {
+    padding: 0 16px;
+  }
+  .header-right {
+    gap: 12px;
+  }
+}
+
+/* Phone / narrow window: slimmer icon rail, tighter spacing */
+@media (max-width: 700px) {
+  .app-container {
+    gap: 10px;
+    padding: 10px;
+  }
+  .sidebar {
+    --rail: 60px;
+    padding: 16px 8px;
+  }
+  .sidebar .nav-link {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .top-bar {
+    min-height: 56px;
+    padding: 0 12px;
+  }
+  .timer-display {
+    font-size: 0.72rem;
+  }
+  .header-right {
+    gap: 8px;
+  }
+  .icon-label-btn {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+/* ================= APPOINTMENT THEME =================
+   Light mauve page, flush deep-plum icon sidebar, cream cards with dark text,
+   plum primary buttons. Loaded last so it overrides the earlier dark styles. */
+:root {
+  --page-bg: #d4b0c5;
+  --surface: #f4f1ec;
+  --surface-2: #ebe5df;
+  --ink: #2a1530;
+  --ink-2: #5d4a5b;
+  --ink-3: #8b7a89;
+  --line: rgba(74, 31, 69, 0.12);
+  --plum: #4a1f45;
+  --plum-2: #5c2252;
+  --plum-3: #7d3d71;
+
+  --glass: var(--surface);
+  --glass-border: var(--line);
+  --text-dim: var(--ink-2);
+  --accent: #5c2252;
+  --accent-soft: rgba(92, 34, 82, 0.12);
+  --success: #2f7d4f;
+  --warning: #a8741a;
+  --danger: #c0392b;
+}
+
+html,
+body,
+#root {
+  background: var(--page-bg);
+  color: var(--ink);
+}
+
+body {
+  background: var(--page-bg);
+}
+
+/* Cards */
+.glass {
+  background: var(--surface);
+  backdrop-filter: none;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(74, 31, 69, 0.06), 0 8px 24px rgba(74, 31, 69, 0.07);
+  color: var(--ink);
+}
+
+/* Shell: sidebar flush to the left edge, content padded on the mauve page */
+.app-container {
+  padding: 0;
+  gap: 0;
+  background: var(--page-bg);
+}
+
+.main-content {
+  padding: 28px 36px 24px;
+  gap: 18px;
+  background: var(--page-bg);
+}
+
+.sidebar.glass {
+  background: var(--plum);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  color: #fff;
+}
+
+.sidebar:is(:hover, :has(:focus-visible)) {
+  background: var(--plum);
+  box-shadow: 8px 0 32px rgba(42, 21, 48, 0.35);
+}
+
+/* Heading row: no card, just the title on the page */
+.glass.top-bar,
+.glass.top-barr {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  min-height: 0;
+  height: auto;
+}
+
+.top-bar h1 {
+  color: var(--ink);
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  font-weight: 700;
+}
+
+.timer-display {
+  color: var(--ink-2);
+}
+
+.page-heading-sub {
+  margin-top: 4px;
+  color: var(--ink-2);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+/* Sidebar menu: icon rail, lighter plum tile for the active page */
+.sidebar .nav-link {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: #fff;
+}
+
+.sidebar .nav-link svg {
+  color: #d6bad0;
+}
+
+.sidebar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: transparent;
+}
+
+.sidebar .nav-link.active {
+  background: var(--plum-3);
+  border-color: transparent;
+  color: #fff;
+}
+
+.sidebar .nav-link.active svg {
+  color: #fff;
+}
+
+.sidebar:not(:is(:hover, :has(:focus-visible))) .nav-link,
+.sidebar:not(:is(:hover, :has(:focus-visible))) .nav-link.active {
+  color: transparent;
+}
+
+.sidebar .user-info {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: transparent;
+}
+
+.sidebar:not(:is(:hover, :has(:focus-visible))) .user-info {
+  background: transparent;
+}
+
+.sidebar .user-avatar {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: transparent;
+  color: #fff;
+}
+
+.sidebar .user-info .badge {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+/* Form controls on light surfaces */
+.glass-input,
+.glasss-input {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.glass-input::placeholder,
+.glasss-input::placeholder {
+  color: var(--ink-3);
+}
+
+.glass-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+select.custom-select,
+.custom-select {
+  background-color: #fff !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%235d4a5b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") !important;
+}
+
+.custom-select:hover,
+.custom-select:focus {
+  background-color: #fff !important;
+  border-color: var(--accent) !important;
+}
+
+.custom-select option {
+  background: #fff !important;
+  color: var(--ink) !important;
+}
+
+input[type="date"],
+input[type="datetime-local"] {
+  color-scheme: light;
+}
+
+/* Buttons: plum with white text */
+.action-btn {
+  background: var(--accent);
+  color: #fff;
+}
+
+.action-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 18px rgba(92, 34, 82, 0.3);
+}
+
+.uf-btn-ghost.uf-btn-ghost {
+  background: rgba(74, 31, 69, 0.08);
+  color: var(--ink);
+}
+
+/* Header icon pills (notifications / logout) */
+.icon-label-btn {
+  background: var(--surface);
+}
+
+/* Dialogs and toasts */
+.overlay {
+  background: rgba(42, 21, 48, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.toast {
+  background: var(--plum);
+  color: #fff;
+  backdrop-filter: none;
+}
+
+.toast.toast-center {
+  background: var(--plum);
+  color: #fff;
+}
+
+/* Login screen keeps the dark skyline but uses a cream card */
+.login-screen .login-card {
+  background: var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  color: var(--ink);
+}
+
+.overlay.login-screen {
+  background:
+    linear-gradient(rgba(12, 9, 18, 0.05), rgba(12, 9, 18, 0.3)),
+    url("/login-bg.svg") center / cover no-repeat,
+    #0c0912;
+  backdrop-filter: none;
+}
+
+/* Inline white text (set in components for the old dark cards) becomes ink */
+.main-content .themed :where([style*="color: white"], [style*="color: rgb(255, 255, 255)"], [style*="color:white"]):not(.action-btn):not(.nav-link):not(.toast) {
+  color: var(--ink) !important;
+}
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 22px 24px 18px;
+  }
+}
+
+@media (max-width: 700px) {
+  .main-content {
+    padding: 16px 14px 12px;
+    gap: 12px;
+  }
+}
+/* Screens built with their own card styles (Tasks, Messenger, Attendance, EOD,
+   Leave, and the Admin / Manager / Lead views) are laid on a cream sheet; the
+   cards inside are a slightly lighter cream with a hairline border. */
+.main-content > .page-content:not(.themed) {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(74, 31, 69, 0.06), 0 8px 24px rgba(74, 31, 69, 0.07);
+  color: var(--ink);
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.main-content > .page-content:not(.themed) .glass {
+  background: #fbf9f6;
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgba(74, 31, 69, 0.05);
+  color: var(--ink);
+}
+/* Avatars on cream cards */
+.main-content .themed .user-avatar {
+  background: var(--plum-3);
+  border-color: transparent;
+  color: #fff;
+}
+/* Dropdown arrow: one icon, pinned right (the theme overrides above replaced
+   the arrow image, which made it tile across the whole select). */
+select.custom-select,
+.custom-select {
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 12px 12px !important;
+  padding-right: 34px !important;
+  text-overflow: ellipsis;
+}
+/* Dim captions in the older screens were tuned for dark cards; keep them legible on cream */
+.main-content > .page-content:not(.themed) .mini-label,
+.main-content > .page-content:not(.themed) small,
+.main-content > .page-content:not(.themed) .timestamp-label {
+  color: var(--ink-2);
+  opacity: 0.95 !important;
+}
+/* ---------- Landing page: 3D scroll buttons ---------- */
+.lp-3d-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 22px 12px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #8a4a80 0%, #5c2252 100%);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  /* stacked shadows give the button a raised, solid edge */
+  box-shadow:
+    0 6px 0 #3b1535,
+    0 14px 24px rgba(74, 31, 69, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transform: perspective(520px) translateY(0) rotateX(0deg);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.lp-3d-btn:hover {
+  transform: perspective(520px) translateY(-3px) rotateX(10deg);
+  box-shadow:
+    0 9px 0 #3b1535,
+    0 20px 30px rgba(74, 31, 69, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.lp-3d-btn:active {
+  transform: perspective(520px) translateY(5px) rotateX(0deg);
+  box-shadow:
+    0 1px 0 #3b1535,
+    0 5px 10px rgba(74, 31, 69, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.lp-3d-btn:focus-visible {
+  outline: 3px solid rgba(92, 34, 82, 0.45);
+  outline-offset: 4px;
+}
+
+.lp-3d-round {
+  width: 52px;
+  height: 52px;
+  padding: 0;
+}
+
+.lp-top-btn {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  animation: lpPop 0.25s ease-out;
+}
+
+@keyframes lpPop {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-top-btn {
+    animation: none;
+  }
+  .lp-3d-btn {
+    transition: none;
+  }
+}
+/* ---------- Landing page: sticky nav with section tabs ---------- */
+.lp-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(217, 185, 203, 0.82);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(74, 31, 69, 0.08);
+}
+
+.lp-nav-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.lp-tabs {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+}
+
+.lp-tab {
+  border: none;
+  background: transparent;
+  color: #4a3548;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lp-tab:hover {
+  background: rgba(92, 34, 82, 0.12);
+}
+
+.lp-tab.active {
+  background: #5c2252;
+  color: #fff;
+  box-shadow: 0 3px 0 #3b1535, 0 8px 14px rgba(74, 31, 69, 0.25);
+  transform: translateY(-1px);
+}
+
+.lp-tab:focus-visible {
+  outline: 3px solid rgba(92, 34, 82, 0.45);
+  outline-offset: 2px;
+}
+
+/* Narrow screens: tabs drop to their own scrollable row under the logo and buttons */
+@media (max-width: 860px) {
+  .lp-nav-inner {
+    padding: 10px 16px;
+  }
+  .lp-tabs {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+}
+/* Phones: logo and account buttons share a row, tabs sit underneath (keeps the sticky bar slim) */
+@media (max-width: 520px) {
+  .lp-nav-inner {
+    gap: 8px;
+  }
+  .lp-nav .brand-text > div:nth-child(2) {
+    display: none; /* drop the "User management" caption */
+  }
+  .lp-nav-inner > div:last-child {
+    margin-left: auto;
+    gap: 6px !important;
+  }
+  .lp-nav-inner > div:last-child button {
+    height: 36px !important;
+    padding: 0 12px !important;
+    font-size: 0.82rem !important;
+  }
+  .lp-tab {
+    padding: 7px 13px;
+    font-size: 0.86rem;
+  }
+}

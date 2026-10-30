@@ -1,0 +1,23 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Secrets: never commit real environment files (use .env.example as the template)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / tool folders and OS files
+.vscode/
+.claude/
+.DS_Store
+Thumbs.db
+
+# Installers and large binaries that don't belong in the repo
+*.exe
+*.msi
+*.zip

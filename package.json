@@ -1,0 +1,12 @@
+{
+  "name": "syncnodeems-root",
+  "private": true,
+  "scripts": {
+    "start:server": "npm --prefix server start",
+    "start:client": "npm --prefix clientreact run dev",
+    "dev": "concurrently \"npm run start:server\" \"npm run start:client\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
