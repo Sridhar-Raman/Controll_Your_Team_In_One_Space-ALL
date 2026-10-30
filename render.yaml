@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: sricr-user-management-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false

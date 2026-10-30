@@ -16,8 +16,13 @@ const server = http.createServer(app);
 
 const DEFAULT_FRONTEND_URL = "https://syncnode-m83d.onrender.com";
 const LOCAL_FRONTEND_URL = "http://localhost:5173";
-const FRONTEND_URL = process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL;
-const ALLOWED_ORIGINS = [FRONTEND_URL, LOCAL_FRONTEND_URL, "http://127.0.0.1:5173"];
+// FRONTEND_URL may hold several comma-separated origins (e.g. your production
+// Vercel domain plus a preview URL). Trailing slashes are ignored.
+const FRONTEND_URLS = (process.env.FRONTEND_URL || DEFAULT_FRONTEND_URL)
+  .split(",")
+  .map((url) => url.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
+const ALLOWED_ORIGINS = [...FRONTEND_URLS, LOCAL_FRONTEND_URL, "http://127.0.0.1:5173"];
 
 // 2. Middleware
 app.use(express.json({ limit: "1mb" }));
