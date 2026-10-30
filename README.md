@@ -39,12 +39,14 @@ server/        Express API, Socket.io, Mongoose models
 
 3. **Create the first admin** (optional, for a fresh database):
 
+   Set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` (8+ characters) in `server/.env`, then:
+
    ```bash
    cd server
    node seed.js
    ```
 
-   This creates an admin account (`admin@syncnode.io` / `password123`). **Change that password after your first login.**
+   This creates one Admin account with those credentials. The script refuses to run on a database that already has users unless you pass `--force`, which deletes all of them.
 
 4. **Run the app** (from the project root):
 
