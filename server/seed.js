@@ -18,12 +18,12 @@ const seedData = async () => {
 
     // 2. Prepare Admin Credentials
     const salt = await bcrypt.genSalt(10);
-    const password = await bcrypt.hash("password123", salt);
+    const password = await bcrypt.hash("Sridhar@3", salt);
 
     // 3. Create only the default Admin
     const adminUser = new User({
-      name: "Sarah Chen",
-      email: "admin@syncnode.io",
+      name: "Sridhar R",
+      email: "sridharraman2018@gmail.com",
       password: password,
       role: "Admin",
       department: "Executive",
