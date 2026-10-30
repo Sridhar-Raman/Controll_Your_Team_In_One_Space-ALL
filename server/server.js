@@ -65,7 +65,7 @@ if (!dbURI || !process.env.JWT_SECRET) {
 
 mongoose
   .connect(dbURI)
-  .then(() => console.log("💎 SyncNode DB Connected"))
+  .then(() => console.log(`💎 SyncNode DB Connected (database: ${mongoose.connection.name})`))
   .catch((err) => {
     console.error("❌ Connection Error Detail:", err.message);
   });
